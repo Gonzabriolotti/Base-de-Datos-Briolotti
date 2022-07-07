@@ -69,7 +69,7 @@ FROM category ca
 ORDER BY average_length DESC;
 
 
-/*E5*/
+/*E5 PREGUNTARLE AL TEO SI ESTA BIEN*/
 SELECT f.rating, (
         SELECT COUNT(*)
         FROM rental r
