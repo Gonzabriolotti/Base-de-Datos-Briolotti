@@ -1,0 +1,120 @@
+CREATE DATABASE Class-16;
+USE Class-16;
+
+CREATE TABLE
+    `employees` (
+        `employeeNumber` int(11) NOT NULL,
+        `lastName` varchar(50) NOT NULL,
+        `firstName` varchar(50) NOT NULL,
+        `extension` varchar(10) NOT NULL,
+        `email` varchar(100) NOT NULL,
+        `officeCode` varchar(10) NOT NULL,
+        `reportsTo` int(11) DEFAULT NULL,
+        `jobTitle` varchar(50) NOT NULL,
+        PRIMARY KEY (`employeeNumber`)
+    );
+
+insert into
+    `employees`(`employeeNumber`,`lastName`,`firstName`,`extension`,`email`,`officeCode`,`reportsTo`,`jobTitle`)
+values (1002,'Murphy','Diane','x5800','dmurphy@classicmodelcars.com','1', NULL,'President'), (1056,'Patterson','Mary','x4611','mpatterso@classicmodelcars.com','1',1002,'VP Sales'), (1076,'Firrelli','Jeff','x9273','jfirrelli@classicmodelcars.com','1',1002,'VP Marketing');
+
+CREATE TABLE
+    employees_audit (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        employeeNumber INT NOT NULL,
+        lastname VARCHAR(50) NOT NULL,
+        changedat DATETIME DEFAULT NULL,
+        action VARCHAR(50) DEFAULT NULL
+    );
+
+INSERT INTO
+    employees(employeeNumber,lastName,firstName,extension,email,officecode,reportsTo,jobTitle)
+VALUES (1,'Pepe','pepe','a', NULL,'1', 2001,'Worker');
+
+
+/*EJER2*/
+
+UPDATE employees SET employeeNumber = employeeNumber - 20;
+
+
+UPDATE employees
+SET
+    employeeNumber = employeeNumber + 20;
+
+SELECT *
+FROM employees;
+
+/*EJER3*/
+
+ALTER TABLE employees ADD age int CHECK(
+        age >= 16
+        AND age <= 70
+    );
+
+ALTER TABLE employees DROP age;
+
+
+INSERT INTO
+    employees(employeeNumber,lastName,firstName,extension,email,officecode,reportsTo,jobTitle,age)
+VALUES (2,'Pepe','pame','b','pepeGmail','1',1003,'Worker', 1);
+
+
+DELETE FROM employees WHERE employeeNumber = 2;
+
+
+/*
+EJER4
+Referential integrity refers to the relationship between tables. Because each table in a database must have a primary key
+, this primary key can appear in other tables because of its relationship to data within those tables. When a primary key from one table appears in another table,
+it is called a foreign key.
+Foreign keys join tables and establish dependencies between tables. 
+tables can form a hierarchy of dependencies in such a way that if you change or delete a row in one table,
+you destroy the meaning of rows in other tables. For example,
+the following figure shows that the customer_num column of the customer table is a primary key for that table and a foreign key in the orders and cust_call tables.
+Customer number 106, George Watson™, is referenced in both the orders and cust_calls tables. If customer 106 is deleted from the customer table,
+the link between the three tables and this particular customer is destroyed.
+https://www.ibm.com/docs/en/informix-servers/14.10?topic=integrity-referential
+*/
+
+
+/*EJER5*/
+
+ALTER TABLE employees ADD COLUMN lastUpdate TIMESTAMP;
+ALTER TABLE employees ADD COLUMN lastUpdateUser VARCHAR(255);
+
+DELIMITER $$
+CREATE Trigger before_employee_update BEFORE UPDATE ON employees FOR EACH ROW
+BEGIN
+SET NEW.lastUpdate = CURRENT_TIMESTAMP;
+SET NEW.lastUpdateUser = CURRENT_USER;
+END$$
+DELIMITER;
+
+UPDATE employees SET age = 15 WHERE employeeNumber = 2;
+
+
+/*EJER6*/
+SHOW TRIGGERS FROM sakila;
+
+
+BEGIN
+    INSERT INTO film_text (film_id, title, description)
+        VALUES (new.film_id, new.title, new.description);
+  END
+
+
+BEGIN
+    IF (old.title != new.title) OR (old.description != new.description) OR (old.film_id != new.film_id)
+    THEN
+        UPDATE film_text
+            SET title=new.title,
+                description=new.description,
+                film_id=new.film_id
+        WHERE film_id=old.film_id;
+    END IF;
+  END
+
+  
+  BEGIN
+    DELETE FROM film_text WHERE film_id = old.film_id;
+  END
