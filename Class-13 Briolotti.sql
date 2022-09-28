@@ -243,3 +243,4 @@ VALUES( (#customer_id
         ), 10, CURRENT_TIMESTAMP
     );
 
+ 
